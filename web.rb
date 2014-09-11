@@ -18,17 +18,36 @@ helpers do
 
     return pass
   end
+
+  def unattend(encrypted_data)
+    Base64.decode64(encrypted_data).unpack('v*').pack('C*')
+  end
 end
 
 get '/' do
   @decrypted = nil
+  @error = nil
   erb :index
 end
 
 post '/' do
   @decrypted = nil
-  if !params[:password].nil?
-    @decrypted = decrypt(params[:password])
+  @error = nil
+  if !params[:password].nil? && !params[:type].nil?
+    begin
+      case params[:type]
+      when 'gpp'
+        @decrypted = decrypt(params[:password])
+      when 'unattend'
+        @decrypted = unattend(params[:password])
+      else
+        @error = "Invalid selection."
+        @decrypt = nil
+      end
+    rescue
+      @decrypted = nil
+      @error = "Invalid string."
+    end
   end
   erb :index
 end
@@ -37,19 +56,50 @@ __END__
 
 @@ index
 <html>
-  <head><title>MICRO-FUUUUUUUU</title></head>
+  <head>
+    <title>MICRO-FUUUUUUUU</title>
+
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+  </head>
   <body>
-    <p>
-      Enter your GPP encrypted password below and click submit.
-    </p>
-    <form method="POST" action="/">
-      <input type="text" name="password" placeholder="Encrypted String" required>
-      <input type="submit" value="Decrypt"/>
-    </form>
-    <% if !@decrypted.nil? %>
-      <p>
-        <b>Decrypted Password: </b><%=@decrypted%>
+    <div class="container">
+      <div class="page-header">
+        <h1>BALLIN SO HARD</h1>
+      </div>
+      <p class="lead">
+        Enter your microsoft loot below and click submit.
       </p>
-    <% end %>
+      <form class="form-horizontal" method="POST" action="/">
+        <input class="form-control" type="text" name="password" placeholder="Encrypted String" required>
+        <select style="margin-top:10px;" class="form-control" name="type">
+          <option value="gpp">Encrypted GPP</option>
+          <option value="unattend">unattend.xml</option>          
+        </select>
+        <input style="margin-top:10px;" class="btn btn-primary" type="submit" value="Decrypt"/>
+      </form>
+      <hr/>
+      <% if @decrypted %>
+        <p>
+          <b>Decrypted Password: </b><%=@decrypted%>
+        </p>
+        <p>
+          <img src="http://ionetheurbandaily.files.wordpress.com/2012/05/50-cent-smiling.jpg?w=420">
+        </p>
+      <% end %>
+      <% if @error %>
+        <p>
+          <b>Error: <%=@error%></b>
+        </p>
+      <% end %>
+    </div>
   </body>
 </html>
