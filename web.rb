@@ -57,7 +57,7 @@ __END__
 @@ index
 <html>
   <head>
-    <title>MICRO-FUUUUUUUU</title>
+    <title>MICROHARD -NOTSOFT</title>
 
 
     <!-- Latest compiled and minified CSS -->
